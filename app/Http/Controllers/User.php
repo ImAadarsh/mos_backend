@@ -525,4 +525,66 @@ public function cartPaymentInitiate(Request $request)
       }
     }
 }
+public function cartPaymentFree(Request $request)
+    {
+        $rules = array(
+            "token" => "required",
+            "cart_id" => "required",
+            "amount" => "required"
+        );
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return $validator->errors();
+        } else {
+            if(ModelsUser::where('remember_token', $request->token)->first()){
+            $user = ModelsUser::where('remember_token', $request->token)->first();
+            if(Cart::where('user_id', $user->id)->where('payment_status', 1)->where('id', $request->cart_id)->first()) {
+                return response(["status" => false,"message" => "Already Cart workshops are already bought."], 200);
+            }
+            if ($user) {
+                $user = ModelsUser::where('remember_token', $request->token)->first();
+                $cart = Cart::find($request->cart_id);
+                $cart->requesting_payment = $request->amount;
+                $cart->order_id = $request->order_id;
+                $cart->verify_token = $request->verify_token;
+                $cart->url = $request->url;
+                $cart->payment_id = $request->payment_id;
+                $cart->payment_status = 1;
+                $cart->is_bought = 1;
+                $cart->save();
+                if ($cart) {
+                    $items = Item::where('cart_id', $cart->id)->get();
+                    $temp = 1;
+                    foreach ($items as $item) {
+                        $temp = $temp+1;
+                        $payment = new Payment();
+                        
+                        $payment->workshop_id = $item->workshop_id;
+                        $payment->user_id = $cart->user_id;
+                        $payment->payment_id = $request->payment_id;
+                        $payment->order_id = $cart->order_id.$temp;
+                        $payment->verify_token = $cart->verify_token;
+                        $payment->amount = $item->price - $item->discount;
+                        $payment->payment_status = 1;
+                        $payment->coupon_code = $item->coupon_code;
+                        $payment->save();
+    
+                    $user = ModelsUser::where('id', $payment->user_id)->first();
+                    $cart = new Cart();
+                        $cart->user_id = $user->id;
+                        $cart->save();
+                
+                    return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account.", "cart"=> $cart->id], 200);
+                }
+
+                return response(["status" => true,"message" => "User Transaction Initiated."], 200);
+            } else {
+                return response(["status" => false,"message" => "User Transaction Not Initiated."], 200);
+            }
+          }else{
+            return response(["status" => true,"message" => "Login again | Session is expired."], 200);
+          }
+        }
+    }
+}
 }

@@ -21,9 +21,9 @@ Route::post('/addItemCartCoupon', 'App\Http\Controllers\User@addItemCartCoupon')
 
 Route::post('/removeItemCart', 'App\Http\Controllers\User@removeItemCart');
 Route::post('/insertSubscriber', 'App\Http\Controllers\User@insertSubscriber');
-Route::post('/userupdate', 'App\Http\Controllers\User@userupdate');
+Route::post('/cartPaymentFree', 'App\Http\Controllers\User@cartPaymentFree');
 
-Route::post('/userupdate', 'App\Http\Controllers\User@userupdate');
+Route::post('/cartPaymentInitiate', 'App\Http\Controllers\User@cartPaymentInitiate');
 Route::post('/userupdate', 'App\Http\Controllers\User@userupdate');
 
 //Admin

@@ -492,4 +492,37 @@ public function removeItemCart(Request $request)
         }
     }
 }
+public function cartPaymentInitiate(Request $request)
+{
+    $rules = array(
+        "token" => "required",
+        "cart_id" => "required",
+        "amount" => "required"
+    );
+    $validator = Validator::make($request->all(), $rules);
+    if ($validator->fails()) {
+        return $validator->errors();
+    } else {
+        if(ModelsUser::where('remember_token', $request->token)->first()){
+        $user = ModelsUser::where('remember_token', $request->token)->first();
+        if(Cart::where('user_id', $user->id)->where('payment_status', 1)->where('id', $request->cart_id)->first()) {
+            return response(["status" => false,"message" => "Already Cart workshops are already bought."], 200);
+        }
+        if ($user) {
+            $user = ModelsUser::where('remember_token', $request->token)->first();
+            $payment = Cart::find($request->cart_id);
+            $payment->requesting_payment = $request->amount;
+            $payment->order_id = $request->order_id;
+            $payment->verify_token = $request->verify_token;
+            $payment->url = $request->url;
+            $payment->save();
+            return response(["status" => true,"message" => "User Transaction Initiated."], 200);
+        } else {
+            return response(["status" => false,"message" => "User Transaction Not Initiated."], 200);
+        }
+      }else{
+        return response(["status" => true,"message" => "Login again | Session is expired."], 200);
+      }
+    }
+}
 }

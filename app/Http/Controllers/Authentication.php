@@ -7,7 +7,9 @@ use App\Models\User;
 use Dirape\Token\Token;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 
 class Authentication extends Controller
 {
@@ -159,6 +161,17 @@ class Authentication extends Controller
                 $new->grade = $request->grade;
                 $new->is_data = 1;
                 $new->save();
+
+                $user = User::find($new->id);
+                $data = ['name' => $new->first_name ];
+                $html = View::make('verification', $data)->render();
+                Mail::raw(null, function ($message) use ($user, $html) {
+                    $message->to($user->email);
+                    $message->subject('Your Account is created with magic of skills. | Verify Your Email Id');
+                    $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
+                    $message->setContentType('text/html');
+                    $message->setBody($html);
+                });
                 return response(["status" =>"true", "message"=>"Profile is created.", "data" => $new, "code" => "step1"], 200);
             }else{
                

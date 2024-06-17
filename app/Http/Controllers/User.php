@@ -14,7 +14,9 @@ use App\Models\User as ModelsUser;
 use App\Models\Wishlist;
 use App\Models\Workshop;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\View;
 
 class User extends Controller
 {
@@ -553,6 +555,7 @@ public function cartPaymentFree(Request $request)
                 $cart->is_bought = 1;
                 $cart->save();
                 if ($cart) {
+                    $user = ModelsUser::where('id', $cart->user_id)->first();
                     $items = Item::where('cart_id', $cart->id)->get();
                     $temp = 1;
                     foreach ($items as $item) {
@@ -568,11 +571,42 @@ public function cartPaymentFree(Request $request)
                         $payment->payment_status = 1;
                         $payment->coupon_code = $item->coupon_code;
                         $payment->save();
-    
-                    $user = ModelsUser::where('id', $payment->user_id)->first();
+
+                        $workshop = Workshop::where('id', $payment->workshop_id)->first();
+                            $data = array(
+                            "name" => $user->name,
+                            "workshop_name" => $workshop->name,
+                            "id" => $workshop->id,
+                            "city" => $user->city
+                        );
+                        $curl = curl_init();
+                        curl_setopt_array($curl, array(
+                        CURLOPT_URL => 'https://app.notifyverse.in/pixel-webhook/53ae2cf1dfcf2f4bbdf1226db79c6615',
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => '',
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => 'POST',
+                        CURLOPT_POSTFIELDS => $data,
+                        ));
+                        $response = curl_exec($curl);
+                        curl_close($curl);
+                    }
+                    
+                    $data = ['amount' => $cart->price, 'id' => $cart->order_id ];
+                    $html = View::make('purchase', $data)->render();
+                    Mail::raw(null, function ($message) use ($user, $html) {
+                        $message->to($user->email);
+                        $message->subject('Congratulation Workshop Activated! | Magic Of Skills | Free Workshop');
+                        $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
+                        $message->setContentType('text/html');
+                        $message->setBody($html);
+                    });
                     $cart = new Cart();
-                        $cart->user_id = $user->id;
-                        $cart->save();
+                            $cart->user_id = $user->id;
+                            $cart->save();
                 
                     return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account.", "cart"=> $cart->id], 200);
                 }
@@ -584,6 +618,152 @@ public function cartPaymentFree(Request $request)
           }else{
             return response(["status" => true,"message" => "Login again | Session is expired."], 200);
           }
+        }
+    }
+public function cartPaymentSucess(Request $request)
+{
+    $rules = array(
+        "token" => "required",
+        "order_id" => "required",
+        "payment_id" => "required"
+    );
+    $validator = Validator::make($request->all(), $rules);
+    if ($validator->fails()) {
+        return $validator->errors();
+    } else {
+        $cart = Cart::where('order_id', $request->order_id)->where('verify_token', $request->token)->where('payment_status', 0)->first();
+        if ($cart) {
+            $user = ModelsUser::where('id', $cart->user_id)->first();
+            $cart->payment_status = 1;
+            $cart->is_bought = 1;
+            $cart->payment_id = $request->payment_id;
+            $cart->save();
+            $items = Item::where('cart_id', $cart->id)->get();
+            $temp = 1;
+            foreach ($items as $item) {
+                $temp = $temp+1;
+                $payment = new Payment();
+                $payment->workshop_id = $item->workshop_id;
+                $payment->user_id = $cart->user_id;
+                $payment->payment_id = $request->payment_id;
+                $payment->order_id = $cart->order_id.$temp;
+                $payment->verify_token = $cart->verify_token;
+                $payment->amount = $item->price - $item->discount;
+                $payment->payment_status = 1;
+                $payment->cpd = 1;
+                $payment->coupon_code = $item->coupon_code;
+                $payment->save();
+                $workshop = Workshop::where('id', $payment->workshop_id)->first();
+                $data = array(
+                "name" => $user->name,
+                "workshop_name" => $workshop->name,
+                "id" => $workshop->id,
+                "city" => $user->city
+            );
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://app.notifyverse.in/pixel-webhook/53ae2cf1dfcf2f4bbdf1226db79c6615',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $data,
+            ));
+            $response = curl_exec($curl);
+            curl_close($curl);
+            }
+            
+            $data = ['amount' => $cart->price, 'id' => $cart->order_id ];
+            $html = View::make('purchase', $data)->render();
+            Mail::raw(null, function ($message) use ($user, $html) {
+                $message->to($user->email);
+                $message->subject('Congratulation Workshop Activated! | Purchase Invoice | Magic Of Skills');
+                $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
+                $message->setContentType('text/html');
+                $message->setBody($html);
+            });
+            $cart = new Cart();
+                    $cart->user_id = $user->id;
+                    $cart->save();
+
+            
+            return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account.", "cart"=> $cart->id], 200);
+        } else {
+            return response(["status" => false,"message" => "Workshop is already Added"], 200);
+        }
+    }
+}
+public function cartPaymentSucessWebhook(Request $request)
+{
+    $rules = array(
+        "token" => "required",
+        "order_id" => "required",
+        "payment_id" => "required"
+    );
+    $validator = Validator::make($request->all(), $rules);
+    if ($validator->fails()) {
+        return $validator->errors();
+    } else {
+        $cart = Cart::where('order_id', $request->order_id)->where('payment_status', 0)->first();
+        if ($cart) {
+            $user = ModelsUser::where('id', $cart->user_id)->first();
+            $cart->payment_status = 1;
+            $cart->is_bought = 1;
+            $cart->payment_id = $request->payment_id;
+            $cart->webhook = 1;
+            $cart->save();
+            $items = Item::where('cart_id', $cart->id)->get();
+            $temp = 0;
+            foreach ($items as $item) {
+                $temp = $temp+1;
+                $payment = new Payment();
+                $payment->workshop_id = $item->workshop_id;
+                $payment->user_id = $cart->user_id;
+                $payment->payment_id = $request->payment_id;
+                $payment->order_id = $cart->order_id.$temp;
+                $payment->verify_token = $cart->verify_token;
+                $payment->amount = $item->price - $item->discount;
+                $payment->payment_status = 1;
+                $payment->coupon_code = $item->coupon_code;
+                $payment->save();
+                $workshop = Workshop::where('id', $payment->workshop_id)->first();
+                $data = array(
+                "name" => $user->name,
+                "workshop_name" => $workshop->name,
+                "id" => $workshop->id,
+                "city" => $user->city
+            );
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://app.notifyverse.in/pixel-webhook/53ae2cf1dfcf2f4bbdf1226db79c6615',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => $data,
+            ));
+            $response = curl_exec($curl);
+            curl_close($curl);
+            }
+            $data = ['amount' => $cart->price, 'id' => $cart->order_id ];
+            $html = View::make('purchase', $data)->render();
+            Mail::raw(null, function ($message) use ($user, $html) {
+                $message->to($user->email);
+                $message->subject('Congratulation Workshop Activated! | Purchase Invoice | Magic Of Skills');
+                $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
+                $message->setContentType('text/html');
+                $message->setBody($html);
+            });
+           
+            return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account."], 222);
+        } else {
+            return response(["status" => false,"message" => "Payment Failure."], 200);
         }
     }
 }

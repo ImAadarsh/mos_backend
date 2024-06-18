@@ -638,7 +638,7 @@ public function cartPaymentSucess(Request $request)
         return $validator->errors();
     } else {
         $cart = Cart::where('order_id', $request->order_id)->where('verify_token', $request->token)->where('payment_status', 0)->first();
-        
+        $user_id = $cart->user_id;
         if ($cart) {
             $user = ModelsUser::where('id', $cart->user_id)->first();
             $cart->payment_status = 1;
@@ -704,7 +704,14 @@ public function cartPaymentSucess(Request $request)
             
             return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account.", "cart"=> $cart->id], 200);
         } else {
-            return response(["status" => false,"message" => "Workshop is already Added"], 200);
+            if(Cart::where('user_id',$user_id)->where('payment_status',0)->first()){
+                $cart = Cart::where('user_id',$user_id)->where('payment_status',0)->first();
+            }else{
+                $cart = new Cart();
+                    $cart->user_id = $user_id;
+                    $cart->save();
+            }
+            return response(["status" => false,"message" => "Workshop is already Added", "cart" => $cart->id], 200);
         }
     }
 }

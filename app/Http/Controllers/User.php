@@ -638,7 +638,7 @@ public function cartPaymentSucess(Request $request)
         return $validator->errors();
     } else {
         $cart = Cart::where('order_id', $request->order_id)->where('verify_token', $request->token)->where('payment_status', 0)->first();
-        $user_id = $cart->user_id;
+       
         if ($cart) {
             $user = ModelsUser::where('id', $cart->user_id)->first();
             $cart->payment_status = 1;

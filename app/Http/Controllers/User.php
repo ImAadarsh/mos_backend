@@ -704,6 +704,8 @@ public function cartPaymentSucess(Request $request)
             
             return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account.", "cart"=> $cart->id], 200);
         } else {
+            $cart = Cart::where('order_id', $request->order_id)->where('verify_token', $request->token)->first();
+            $user_id = $cart->user_id;
             if(Cart::where('user_id',$user_id)->where('payment_status',0)->first()){
                 $cart = Cart::where('user_id',$user_id)->where('payment_status',0)->first();
             }else{

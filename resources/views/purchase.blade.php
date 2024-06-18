@@ -171,7 +171,7 @@
 																	style="line-height:10px">
 																	<div style="max-width: 149px;"><img
 																			alt="I'm an image" height="auto"
-																			src="https://email.magicofskills.com/images/logo.svg"
+																			src="https://email.magicofskills.com/images/1.png"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="I'm an image" width="149" /></div>
 																</div>
@@ -424,7 +424,7 @@
 																<div
 																	style="color:#555555;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;font-size:20px;line-height:150%;text-align:center;mso-line-height-alt:30px;">
 																	<p style="margin: 0; word-break: break-word;"><span
-																			style="color: #2b303a;"><strong>{{$id}}</strong></span>
+																			style="color: #2b303a;"><strong>{{$payment_id}}</strong></span>
 																	</p>
 																</div>
 															</td>
@@ -526,8 +526,8 @@
 																		style="background-color:#FDB11C;border-bottom:0px solid transparent;border-left:0px solid transparent;border-radius:60px;border-right:0px solid transparent;border-top:0px solid transparent;color:#ffffff;display:inline-block;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;font-size:16px;font-weight:undefined;mso-border-alt:none;padding-bottom:15px;padding-top:15px;text-align:center;text-decoration:none;width:auto;word-break:keep-all;">
 																		<span
 																			style="padding-left:30px;padding-right:30px;font-size:16px;display:inline-block;letter-spacing:normal;"><span
-																				style="margin: 0; word-break: break-word; line-height: 32px;"><strong> <a style="text-decoration: none; color: whitesmoke;" href="https://magicofskills.com/invoice/?transaction_id={{$id}}"></a> Download
-																					Invoice</strong></span></span></div>
+																				style="margin: 0; word-break: break-word; line-height: 32px;"><strong> <a style="text-decoration: none; color: whitesmoke;" href="https://magicofskills.com/invoice/?order_id={{$id}}"> Download
+																					Invoice</a></strong></span></span></div>
 																	<!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
 																</div>
 															</td>
@@ -668,7 +668,7 @@
 																	style="line-height:10px">
 																	<div style="max-width: 153px;"><img
 																			alt="Alternate text" height="auto"
-																			src="https://email.magicofskills.com/images/secondary_logo.svg"
+																			src="https://email.magicofskills.com/images/2.png"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="Alternate text" width="153" /></div>
 																</div>

@@ -24,7 +24,15 @@ Route::post('/insertSubscriber', 'App\Http\Controllers\User@insertSubscriber');
 Route::post('/cartPaymentFree', 'App\Http\Controllers\User@cartPaymentFree');
 
 Route::post('/cartPaymentInitiate', 'App\Http\Controllers\User@cartPaymentInitiate');
-Route::post('/userupdate', 'App\Http\Controllers\User@userupdate');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
+
+Route::post('/cartPaymentSucessWebhook', 'App\Http\Controllers\User@cartPaymentSucessWebhook');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
+Route::post('/cartPaymentSucess', 'App\Http\Controllers\User@cartPaymentSucess');
 
 //Admin
 
@@ -38,8 +46,8 @@ Route::post('/insertEvent', 'App\Http\Controllers\Admin@insertEvent');
 Route::post('/insertCoupon', 'App\Http\Controllers\Admin@insertCoupon');
 Route::post('/insertBlogCategory', 'App\Http\Controllers\Admin@insertBlogCategory');
 Route::post('/insertBlog', 'App\Http\Controllers\Admin@insertBlog');
-Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
-Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
-Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
-Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
+// Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
+// Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
+// Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
+// Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
 

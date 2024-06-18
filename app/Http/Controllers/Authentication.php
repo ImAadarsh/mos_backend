@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\User;
 use Dirape\Token\Token;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -163,15 +164,17 @@ class Authentication extends Controller
                 $new->save();
 
                 $user = User::find($new->id);
-                $data = ['name' => $new->first_name ];
-                $html = View::make('verification', $data)->render();
-                Mail::raw(null, function ($message) use ($user, $html) {
-                    $message->to($user->email);
-                    $message->subject('Your Account is created with magic of skills. | Verify Your Email Id');
-                    $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
-                    $message->setContentType('text/html');
-                    $message->setBody($html);
-                });
+                try {
+                    $data = ['name' => $new->first_name ];
+                    $email = $user->email;
+                    $name = $user->first_name;
+                    Mail::send('verification', $data, function ($message) use ($email, $name) {
+                        $message->to($email, $name)->subject('Your Account is created with magic of skills. | Verify Your Email Id');
+                    });
+                    
+                } catch (Exception $e) {
+                    return response(["status" =>"false", "message"=>$e->getMessage()], 401);
+                }
                 return response(["status" =>"true", "message"=>"Profile is created.", "data" => $new, "code" => "step1"], 200);
             }else{
                

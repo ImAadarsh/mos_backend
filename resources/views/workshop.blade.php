@@ -131,7 +131,7 @@
 																	style="line-height:10px">
 																	<div style="max-width: 211.75px;"><img alt="Image"
 																			height="auto"
-																			src="https://email.magicofskills.com/images/logo.svg"
+																			src="https://email.magicofskills.com/images/1.png"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="Image" width="211.75" /></div>
 																</div>
@@ -360,8 +360,8 @@
 																			style="padding-left:35px;padding-right:35px;font-size:20px;display:inline-block;letter-spacing:normal;"><span
 																				style="word-break:break-word;"><span
 																					data-mce-style=""
-																					style="line-height: 40px;"> <a style="text-decoration: none; color: whitesmoke;" href="{{$join_url}}"></a> Join
-																					Workshop Now</span></span></span>
+																					style="line-height: 40px;"> <a style="text-decoration: none; color: whitesmoke;" href="{{$join_url}}">Join
+																					Workshop Now</a> </span></span></span>
 																	</div>
 																	<!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
 																</div>
@@ -783,7 +783,7 @@
 																	style="line-height:10px">
 																	<div style="max-width: 131.083px;"><img alt="Image"
 																			height="auto"
-																			src="https://email.magicofskills.com/images/secondary_logo.svg"
+																			src="https://email.magicofskills.com/images/2.png"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="Image" width="131.083" /></div>
 																</div>

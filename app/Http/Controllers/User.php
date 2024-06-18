@@ -13,10 +13,11 @@ use App\Models\Subscriber;
 use App\Models\User as ModelsUser;
 use App\Models\Wishlist;
 use App\Models\Workshop;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Mail;
 
 class User extends Controller
 {
@@ -574,7 +575,7 @@ public function cartPaymentFree(Request $request)
 
                         $workshop = Workshop::where('id', $payment->workshop_id)->first();
                             $data = array(
-                            "name" => $user->name,
+                            "name" => $user->first_name,
                             "workshop_name" => $workshop->name,
                             "id" => $workshop->id,
                             "city" => $user->city
@@ -595,15 +596,20 @@ public function cartPaymentFree(Request $request)
                         curl_close($curl);
                     }
                     
-                    $data = ['amount' => $cart->price, 'id' => $cart->order_id ];
-                    $html = View::make('purchase', $data)->render();
-                    Mail::raw(null, function ($message) use ($user, $html) {
-                        $message->to($user->email);
-                        $message->subject('Congratulation Workshop Activated! | Magic Of Skills | Free Workshop');
-                        $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
-                        $message->setContentType('text/html');
-                        $message->setBody($html);
-                    });
+                    try {
+                        $data = ['amount' => $cart->price, 'id' => $cart->order_id, 'payment_id' => $request->payment_id ];
+                        $email = $user->email;
+                        $name = $user->first_name;
+                        Mail::send('purchase', $data, function ($message) use ($email, $name) {
+                            $message->to($email, $name)->subject('Congratulation Workshop Activated! | Free Workshop | Magic Of Skills');
+                        });
+                        
+                    } catch (Exception $e) {
+                        echo 'Caught exception: ',  $e->getMessage(), "\n";
+                    }
+                    
+                    
+                    
                     $cart = new Cart();
                             $cart->user_id = $user->id;
                             $cart->save();
@@ -632,6 +638,7 @@ public function cartPaymentSucess(Request $request)
         return $validator->errors();
     } else {
         $cart = Cart::where('order_id', $request->order_id)->where('verify_token', $request->token)->where('payment_status', 0)->first();
+        
         if ($cart) {
             $user = ModelsUser::where('id', $cart->user_id)->first();
             $cart->payment_status = 1;
@@ -655,7 +662,7 @@ public function cartPaymentSucess(Request $request)
                 $payment->save();
                 $workshop = Workshop::where('id', $payment->workshop_id)->first();
                 $data = array(
-                "name" => $user->name,
+                "name" => $user->first_name,
                 "workshop_name" => $workshop->name,
                 "id" => $workshop->id,
                 "city" => $user->city
@@ -675,16 +682,21 @@ public function cartPaymentSucess(Request $request)
             $response = curl_exec($curl);
             curl_close($curl);
             }
+
+            try {
+                $data = ['amount' => $cart->price, 'id' => $cart->order_id, 'payment_id' => $request->payment_id ];
+                $email = $user->email;
+                $name = $user->first_name;
+                Mail::send('purchase', $data, function ($message) use ($email, $name) {
+                    $message->to($email, $name)->subject('Congratulation Workshop Activated! | Purchase Invoice | Magic Of Skills');
+                });
+                
+            } catch (Exception $e) {
+                echo 'Caught exception: ',  $e->getMessage(), "\n";
+            }
             
-            $data = ['amount' => $cart->price, 'id' => $cart->order_id ];
-            $html = View::make('purchase', $data)->render();
-            Mail::raw(null, function ($message) use ($user, $html) {
-                $message->to($user->email);
-                $message->subject('Congratulation Workshop Activated! | Purchase Invoice | Magic Of Skills');
-                $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
-                $message->setContentType('text/html');
-                $message->setBody($html);
-            });
+            
+            
             $cart = new Cart();
                     $cart->user_id = $user->id;
                     $cart->save();
@@ -731,7 +743,7 @@ public function cartPaymentSucessWebhook(Request $request)
                 $payment->save();
                 $workshop = Workshop::where('id', $payment->workshop_id)->first();
                 $data = array(
-                "name" => $user->name,
+                "name" => $user->first_name,
                 "workshop_name" => $workshop->name,
                 "id" => $workshop->id,
                 "city" => $user->city
@@ -751,15 +763,17 @@ public function cartPaymentSucessWebhook(Request $request)
             $response = curl_exec($curl);
             curl_close($curl);
             }
-            $data = ['amount' => $cart->price, 'id' => $cart->order_id ];
-            $html = View::make('purchase', $data)->render();
-            Mail::raw(null, function ($message) use ($user, $html) {
-                $message->to($user->email);
-                $message->subject('Congratulation Workshop Activated! | Purchase Invoice | Magic Of Skills');
-                $message->from(getenv("MAIL_USERNAME"), getenv("APP_NAME"));
-                $message->setContentType('text/html');
-                $message->setBody($html);
-            });
+            try {
+                $data = ['amount' => $cart->price, 'id' => $cart->order_id, 'payment_id' => $request->payment_id ];
+                $email = $user->email;
+                $name = $user->first_name;
+                Mail::send('purchase', $data, function ($message) use ($email, $name) {
+                    $message->to($email, $name)->subject('Congratulation Workshop Activated! | Purchase Invoice | Magic Of Skills');
+                });
+                
+            } catch (Exception $e) {
+                echo 'Caught exception: ',  $e->getMessage(), "\n";
+            }
            
             return response(["status" => true,"message" => "Transaction is sucessfully completed. Workshops are added in your account."], 222);
         } else {

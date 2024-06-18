@@ -171,7 +171,7 @@
 																	style="line-height:10px">
 																	<div style="max-width: 149px;"><img
 																			alt="I'm an image" height="auto"
-																			src="https://email.magicofskills.com/images/logo.svg"
+																			src="https://email.magicofskills.com/images/1.png"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="I'm an image" width="149" /></div>
 																</div>
@@ -608,7 +608,7 @@
 																	style="line-height:10px">
 																	<div style="max-width: 153px;"><img
 																			alt="Alternate text" height="auto"
-																			src="https://email.magicofskills.com/images/secondary_logo.svg"
+																			src="https://email.magicofskills.com/images/2.png"
 																			style="display: block; height: auto; border: 0; width: 100%;"
 																			title="Alternate text" width="153" /></div>
 																</div>

@@ -26,8 +26,6 @@ class Admin extends Controller
         'content' => 'required',
         'category_id' => 'required|exists:blog_categories,id',
         'author_name' => 'required|max:255',
-        'icon' => 'required',
-        'banner' => 'required',
         'quote' => 'nullable|max:500',
         'tags' => 'required|max:255',
     ];
@@ -41,11 +39,20 @@ class Admin extends Controller
         return response(["status" =>"false", "message"=>"Session is expired. Please Login Again"], 401);
     }
     try {
-        $blog = new Blog();
+        if($request->id){
+            $blog = Blog::find($request->id);
+        }else{
+            $blog = new Blog();
+        }
+        if($request->title)
         $blog->title = $request->title;
+        if($request->subtitle)
         $blog->subtitle = $request->subtitle;
+        if($request->content)
         $blog->content = $request->content;
+        if($request->category_id)
         $blog->category_id = $request->category_id;
+        if($request->author_name)
         $blog->author_name = $request->author_name;
         if ($request->hasFile('icon')) {
             $file = $request->file('icon')->store('public/blog/icon');
@@ -55,7 +62,9 @@ class Admin extends Controller
             $file1 = $request->file('banner')->store('public/blog/banner_image');
             $blog->banner  = $file1;
         }
+        if($request->quote)
         $blog->quote = $request->quote;
+        if($request->tags)
         $blog->tags = $request->tags;
         $blog->save();
 
@@ -88,7 +97,12 @@ public function insertBlogCategory(Request $request)
     }
 
     try {
-        $category = new BlogCategorie();
+        if($request->id){
+            $category = BlogCategorie::find($request->id);
+        }else{
+            $category = new BlogCategorie();
+        }
+        
         $category->name = $request->name;
         $category->save();
 
@@ -123,7 +137,11 @@ public function insertCategory(Request $request)
         if(!User::where('remember_token',$request->token)->where('user_type','admin')->first()){
             return response(["status" =>"false", "message"=>"Session is expired. Please Login Again"], 401);
         }
-        $category = new Categorie();
+        if($request->id){
+            $category = Categorie::find($request->id);
+        }else{
+            $category = new Categorie();
+        }
         $category->name = $request->name;
         $category->icon = $request->icon;
         $category->sequence = $request->sequence;
@@ -147,7 +165,6 @@ public function insertCoupon(Request $request)
 {
     $rules = [
         'coupon_code' => 'required|max:15',
-        'discount_type' => 'nullable|integer|min:0|max:1',
         'value' => 'required|numeric',
         'valid_till' => 'required|date',
         'count' => 'required|integer',
@@ -163,9 +180,13 @@ public function insertCoupon(Request $request)
     }
 
     try {
-        $coupon = new Coupon();
+        if($request->id){
+            $coupon = Coupon::find($request->id);
+        }else{
+            $coupon = new Coupon();
+        }
         $coupon->coupon_code = $request->coupon_code;
-        $coupon->discount_type = $request->input('discount_type', 2); // Default to 2 if not provided
+        $coupon->discount_type = 1;// Default to 2 if not provided
         $coupon->value = $request->value;
         $coupon->valid_till = $request->valid_till;
         $coupon->count = $request->count;
@@ -211,7 +232,11 @@ public function insertEvent(Request $request)
     }
 
     try {
-        $event = new Event();
+        if($request->id){
+            $event = Event::find($request->id);
+        }else{
+            $event = new Event();
+        }
         $event->name = $request->name;
         $event->description = $request->description;
         $event->learning = $request->learning;
@@ -304,7 +329,11 @@ public function insertTestimonial(Request $request)
     }
 
     try {
+       if($request->id){
+        $testimonial =  Testimonial::find($request->id);
+       }else{
         $testimonial = new Testimonial();
+       }
         $testimonial->name = $request->name;
         $testimonial->review = $request->review;
         $testimonial->rating = $request->rating;
@@ -339,7 +368,11 @@ public function insertTrainer(Request $request)
     }
 
     try {
-        $trainer = new Trainer();
+        if($request->id){
+            $trainer = Trainer::find($request->id);
+        }else{
+            $trainer = new Trainer();
+        }
         $trainer->name = $request->name;
         $trainer->designation = $request->designation;
         $trainer->short_description = $request->short_description;
@@ -368,7 +401,6 @@ public function insertWorkshop(Request $request)
     $rules = [
         'name' => 'required|max:255',
         'description' => 'required|max:2000',
-     
         'price' => 'required|numeric',
         'trainer_id' => 'required|integer|exists:trainers,id',
 
@@ -384,7 +416,11 @@ public function insertWorkshop(Request $request)
     }
 
     try {
-        $workshop = new Workshop();
+        if($request->id){
+            $workshop = Workshop::find($request->id);
+        }else{
+            $workshop = new Workshop();
+        }
         $workshop->name = $request->name;
         $workshop->description = $request->description;
         $workshop->short_description = $request->short_description;
@@ -395,6 +431,7 @@ public function insertWorkshop(Request $request)
         $workshop->start_time = $request->start_time;
         $workshop->duration = $request->duration;
         $workshop->cut_price = $request->cut_price;
+        if($request->is_free)
         $workshop->is_free = $request->is_free;
         $workshop->level = $request->level;
        

@@ -19,7 +19,6 @@ class Authentication extends Controller
         $rules = array(
             "mobile" => "required",
             "email" => "required|email",
-            "name" => "required",
         );
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {

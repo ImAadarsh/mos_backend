@@ -459,6 +459,53 @@ public function insertWorkshop(Request $request)
     }
 }
 
+public function uploadHeroImage(Request $request)
+{
+    $rules = [
+        'token' => 'required|max:255',
+    ];
 
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        return response($validator->errors(), 400);
+    }
+    if(!User::where('remember_token',$request->token)->where('user_type','admin')->first()){
+        return response(["status" =>"false", "message"=>"Session is expired. Please Login Again"], 401);
+    }
+
+    try {
+        if ($request->hasFile('hero_image')) {
+            $file = $request->file('hero_image')->store('public/homepage');
+            
+            \Illuminate\Support\Facades\DB::table('Quest_settings')->updateOrInsert(
+                ['setting_key' => 'homepage_hero_image'],
+                [
+                    'setting_value' => $file,
+                    'description' => 'Homepage Hero Image Path',
+                    'updated_at' => now()
+                ]
+            );
+
+            return response([
+                'status' => true,
+                'message' => 'Hero image uploaded successfully.',
+                'path' => $file
+            ], 200);
+        }
+        
+        return response([
+            'status' => false,
+            'message' => 'No file uploaded.'
+        ], 400);
+    } catch (\Exception $e) {
+        return response([
+            'status' => false,
+            'message' => 'Failed to upload image.',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 }
+

@@ -46,6 +46,7 @@ Route::post('/insertEvent', 'App\Http\Controllers\Admin@insertEvent');
 Route::post('/insertCoupon', 'App\Http\Controllers\Admin@insertCoupon');
 Route::post('/insertBlogCategory', 'App\Http\Controllers\Admin@insertBlogCategory');
 Route::post('/insertBlog', 'App\Http\Controllers\Admin@insertBlog');
+Route::post('/uploadHeroImage', 'App\Http\Controllers\Admin@uploadHeroImage');
 // Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
 // Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
 // Route::post('/userupdate', 'App\Http\Controllers\Admin@userupdate');
